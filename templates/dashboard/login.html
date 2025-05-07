@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - GitHub Insights Dashboard{% endblock %}
+
+{% block content %}
+<div class="card mx-auto max-w-md bg-base-100 shadow-xl">
+    <div class="card-body">
+        <h2 class="card-title text-center">Login</h2>
+        <form method="post">
+            {% csrf_token %}
+            
+            {% for field in form %}
+                <div class="form-control w-full">
+                    <label class="label">
+                        <span class="label-text">{{ field.label }}</span>
+                    </label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <label class="label">
+                            <span class="label-text-alt text-error">{{ field.errors }}</span>
+                        </label>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            
+            <div class="form-control mt-6">
+                <button type="submit" class="btn btn-primary">Login</button>
+            </div>
+        </form>
+        <div class="text-center mt-4">
+            <p>Don't have an account? <a href="{% url 'register' %}" class="link link-primary">Register</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Apply DaisyUI input classes to form fields
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.classList.add('input', 'input-bordered', 'w-full');
+        });
+    });
+</script>
+{% endblock %} 

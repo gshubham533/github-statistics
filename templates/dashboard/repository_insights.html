@@ -1,0 +1,329 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ repo.name }} Insights - GitHub Insights Dashboard{% endblock %}
+
+{% block content %}
+<div class="text-sm breadcrumbs mb-4">
+    <ul>
+        <li><a href="{% url 'index' %}">Home</a></li>
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li>{{ repo.name }} Insights</li>
+    </ul>
+</div>
+
+<div class="card bg-base-100 shadow-xl mb-6">
+    <div class="card-body">
+        <h2 class="card-title">{{ repo.name }}</h2>
+        <div class="stats shadow">
+            <div class="stat">
+                <div class="stat-title">Stars</div>
+                <div class="stat-value">{{ repo.stargazers_count }}</div>
+            </div>
+            <div class="stat">
+                <div class="stat-title">Forks</div>
+                <div class="stat-value">{{ repo.forks_count }}</div>
+            </div>
+            <div class="stat">
+                <div class="stat-title">Watchers</div>
+                <div class="stat-value">{{ repo.subscribers_count }}</div>
+            </div>
+            <div class="stat">
+                <div class="stat-title">Open Issues</div>
+                <div class="stat-value">{{ repo.open_issues_count }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <!-- Commit Activity Chart -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title">Commit Activity (Last 52 Weeks)</h2>
+            <canvas id="commitActivityChart" width="400" height="300"></canvas>
+        </div>
+    </div>
+
+    <!-- Code Frequency Chart -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title">Code Frequency (Additions/Deletions)</h2>
+            <canvas id="codeFrequencyChart" width="400" height="300"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <!-- Contributors Chart -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title">Top Contributors</h2>
+            <canvas id="contributorsChart" width="400" height="300"></canvas>
+        </div>
+    </div>
+
+    <!-- Traffic Chart -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title">Traffic (Views/Clones)</h2>
+            <canvas id="trafficChart" width="400" height="300"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Popular Referrers -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title">Popular Referrers</h2>
+            {% if referrers %}
+                <div class="overflow-x-auto">
+                    <table class="table table-zebra w-full">
+                        <thead>
+                            <tr>
+                                <th>Referrer</th>
+                                <th>Unique</th>
+                                <th>Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for referrer in referrers %}
+                                <tr>
+                                    <td>{{ referrer.referrer }}</td>
+                                    <td>{{ referrer.uniques }}</td>
+                                    <td>{{ referrer.count }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <div>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>No referrer data available.</span>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Popular Paths -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title">Popular Paths</h2>
+            {% if paths %}
+                <div class="overflow-x-auto">
+                    <table class="table table-zebra w-full">
+                        <thead>
+                            <tr>
+                                <th>Path</th>
+                                <th>Unique</th>
+                                <th>Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for path in paths %}
+                                <tr>
+                                    <td>{{ path.path }}</td>
+                                    <td>{{ path.uniques }}</td>
+                                    <td>{{ path.count }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <div>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>No path data available.</span>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Commit Activity Chart
+    const commitActivityData = {{ commit_activity|safe }};
+    if (commitActivityData && commitActivityData.length > 0) {
+        const weeks = commitActivityData.map((item, index) => `Week ${index + 1}`);
+        const totals = commitActivityData.map(item => item.total);
+
+        const commitActivityChart = new Chart(
+            document.getElementById('commitActivityChart').getContext('2d'),
+            {
+                type: 'line',
+                data: {
+                    labels: weeks,
+                    datasets: [{
+                        label: 'Commits',
+                        data: totals,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderWidth: 1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    responsive: true
+                }
+            }
+        );
+    }
+
+    // Code Frequency Chart
+    const codeFrequencyData = {{ code_frequency|safe }};
+    if (codeFrequencyData && codeFrequencyData.length > 0) {
+        const weeks = codeFrequencyData.map((item, index) => `Week ${index + 1}`);
+        const additions = codeFrequencyData.map(item => item[1]);
+        const deletions = codeFrequencyData.map(item => Math.abs(item[2]));
+
+        const codeFrequencyChart = new Chart(
+            document.getElementById('codeFrequencyChart').getContext('2d'),
+            {
+                type: 'bar',
+                data: {
+                    labels: weeks,
+                    datasets: [
+                        {
+                            label: 'Additions',
+                            data: additions,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Deletions',
+                            data: deletions,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    responsive: true
+                }
+            }
+        );
+    }
+
+    // Contributors Chart
+    const contributorsData = {{ contributors|safe }};
+    if (contributorsData && contributorsData.length > 0) {
+        const topContributors = contributorsData.slice(0, 5);
+        const usernames = topContributors.map(item => item.author.login);
+        const commits = topContributors.map(item => item.total);
+
+        const contributorsChart = new Chart(
+            document.getElementById('contributorsChart').getContext('2d'),
+            {
+                type: 'pie',
+                data: {
+                    labels: usernames,
+                    datasets: [{
+                        data: commits,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            }
+        );
+    }
+
+    // Traffic Chart
+    const trafficViewsData = {{ traffic_views|safe }};
+    const trafficClonesData = {{ traffic_clones|safe }};
+    
+    if (trafficViewsData && trafficViewsData.views && trafficClonesData && trafficClonesData.clones) {
+        const viewDates = trafficViewsData.views.map(item => item.timestamp.slice(0, 10));
+        const viewCounts = trafficViewsData.views.map(item => item.count);
+        
+        const cloneDates = trafficClonesData.clones.map(item => item.timestamp.slice(0, 10));
+        const cloneCounts = trafficClonesData.clones.map(item => item.count);
+        
+        // Combine dates for both views and clones
+        const allDates = [...new Set([...viewDates, ...cloneDates])].sort();
+        
+        // Create datasets with zeros where there is no data
+        const viewsDataset = allDates.map(date => {
+            const index = viewDates.indexOf(date);
+            return index !== -1 ? viewCounts[index] : 0;
+        });
+        
+        const clonesDataset = allDates.map(date => {
+            const index = cloneDates.indexOf(date);
+            return index !== -1 ? cloneCounts[index] : 0;
+        });
+
+        const trafficChart = new Chart(
+            document.getElementById('trafficChart').getContext('2d'),
+            {
+                type: 'line',
+                data: {
+                    labels: allDates,
+                    datasets: [
+                        {
+                            label: 'Views',
+                            data: viewsDataset,
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderWidth: 1,
+                            fill: true
+                        },
+                        {
+                            label: 'Clones',
+                            data: clonesDataset,
+                            borderColor: 'rgba(255, 206, 86, 1)',
+                            backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                            borderWidth: 1,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    responsive: true
+                }
+            }
+        );
+    }
+});
+</script>
+{% endblock %} 

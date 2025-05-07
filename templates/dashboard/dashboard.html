@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - GitHub Insights Dashboard{% endblock %}
+
+{% block content %}
+<div class="text-sm breadcrumbs mb-4">
+    <ul>
+        <li><a href="{% url 'index' %}">Home</a></li>
+        <li>Dashboard</li>
+    </ul>
+</div>
+
+<div class="flex flex-col lg:flex-row gap-4">
+    <!-- Personal Repositories -->
+    <div class="lg:w-1/2">
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title">Personal Repositories</h2>
+                
+                {% if repos %}
+                    <div class="overflow-x-auto">
+                        <table class="table table-zebra w-full">
+                            <thead>
+                                <tr>
+                                    <th>Repository</th>
+                                    <th>Stars</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for repo in repos %}
+                                    <tr>
+                                        <td>{{ repo.name }}</td>
+                                        <td>{{ repo.stargazers_count }}</td>
+                                        <td>
+                                            <a href="{% url 'repository_insights' owner=repo.owner.login repo=repo.name %}" class="btn btn-sm btn-primary">View Insights</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <div>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>No personal repositories found.</span>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Organization Repositories -->
+    <div class="lg:w-1/2">
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title">Organization Repositories</h2>
+                
+                {% if org_repos %}
+                    <div class="overflow-x-auto">
+                        <table class="table table-zebra w-full">
+                            <thead>
+                                <tr>
+                                    <th>Organization</th>
+                                    <th>Repository</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for repo in org_repos %}
+                                    <tr>
+                                        <td>{{ repo.owner.login }}</td>
+                                        <td>{{ repo.name }}</td>
+                                        <td>
+                                            <a href="{% url 'repository_insights' owner=repo.owner.login repo=repo.name %}" class="btn btn-sm btn-primary">View Insights</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <div>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>No organization repositories found.</span>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

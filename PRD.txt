@@ -1,0 +1,262 @@
+📘 Product Requirements Document: GitHub Insights Dashboard
+1. Overview
+Objective: Develop a web application that allows users to gain insights into their GitHub repositories—both individual and organizational—by integrating with GitHub's API.
+
+Key Features:
+
+User authentication and API key management
+
+Dashboard displaying repository metrics
+
+Interactive charts and visualizations
+GitHub
++1
+ResearchGate
++1
+
+2. User Roles & Permissions
+Authenticated Users:
+
+Sign up and log in
+
+Add and manage GitHub API keys
+
+View personal and organizational repository insights
+Awesome Open Source
++7
+Screenful
++7
+Marina Mel
++7
+GitHub
++12
+daisyUI
++12
+DEV Community
++12
+
+3. Technical Stack
+Backend: Django (Function-Based Views)
+
+Frontend: DaisyUI with Tailwind CSS
+
+Database: SQLite3
+
+Authentication: Django's built-in authentication system
+
+Charts: Chart.js integrated via Django templates
+Screenful
++6
+Awesome Open Source
++6
+Modern BI
++6
+YouTube
++3
+CodeSignal
++3
+Django Project
++3
+Django Forum
+
+4. User Flow
+Registration & Login:
+
+Users can register and log in using email and password.
+
+Upon login, users are redirected to their dashboard.
+
+API Key Management:
+
+Users can add their GitHub Personal Access Tokens (PATs).
+
+Tokens are stored securely and used for API requests.
+
+Dashboard:
+
+Displays a list of repositories (personal and organizational).
+
+Users can select a repository to view detailed insights.
+
+Insights View:
+
+Shows metrics like commits, code frequency, contributors, and traffic.
+
+Interactive charts visualize the data.
+App Generator
++4
+W3Schools.com
++4
+Screenful
++4
+Django Rest Framework
++2
+Django Packages
++2
+Django Rest Framework
++2
+
+5. API Integration
+Utilize GitHub's REST API to fetch data:
+
+Repository Listing:
+
+GET /user/repos
+
+GET /orgs/{org}/repos
+Stack Overflow
+
+Repository Insights:
+
+GET /repos/{owner}/{repo}/stats/commit_activity
+
+GET /repos/{owner}/{repo}/stats/code_frequency
+
+GET /repos/{owner}/{repo}/stats/contributors
+
+GET /repos/{owner}/{repo}/traffic/views
+
+GET /repos/{owner}/{repo}/traffic/clones
+
+GET /repos/{owner}/{repo}/traffic/popular/referrers
+
+GET /repos/{owner}/{repo}/traffic/popular/paths
+
+Ensure that the user's PAT has the necessary scopes to access private repositories and organizational data.
+
+6. Frontend Components (DaisyUI)
+Navbar:
+
+Links to Dashboard, API Key Management, and Logout
+
+Dashboard Cards:
+
+Summarize key metrics like total commits, contributors, etc.
+
+Repository List:
+
+Displays repositories with options to view insights
+
+Charts:
+
+Line charts for commit activity
+
+Bar charts for code frequency
+
+Pie charts for language distribution
+GitHub
++16
+CanvasJS
++16
+TestDriven.io
++16
+Modern BI
++18
+DEV Community
++18
+Screenful
++18
+
+7. Backend Structure
+Models:
+
+UserProfile: Extends the default User model to store GitHub PATs.
+
+Views:
+
+register_view: Handles user registration.
+
+login_view: Handles user login.
+
+logout_view: Handles user logout.
+
+dashboard_view: Displays the user's dashboard.
+
+add_api_key_view: Allows users to add their GitHub PATs.
+
+repository_list_view: Lists user's repositories.
+
+repository_insights_view: Displays insights for a selected repository.
+CodeSignal
+Django Rest Framework
+Tailkits
++4
+GitHub
++4
+GitHub
++4
+DEV Community
++1
+Anything Python
++1
+
+Templates:
+
+Use Django templates with DaisyUI components for rendering views.
+SaaS Pegasus
+
+8. Security Considerations
+API Key Storage:
+
+Encrypt and store PATs securely in the database.
+Django Forum
+
+Authentication:
+
+Use Django's built-in authentication system.
+WIRED
++4
+Django Project
++4
+Stack Overflow
++4
+
+Rate Limiting:
+
+Implement mechanisms to handle GitHub API rate limits gracefully.
+
+9. Development Plan for Junior Developer
+Week 1:
+
+Set up the Django project and configure the database.
+
+Implement user registration and login functionality.
+
+Week 2:
+
+Create models and views for API key management.
+
+Integrate GitHub API to fetch repository data.
+WIRED
++2
+Django Rest Framework
++2
+Django Rest Framework
++2
+
+Week 3:
+
+Develop the dashboard to display repository metrics.
+
+Integrate Chart.js for data visualization.
+
+Week 4:
+
+Enhance UI using DaisyUI components.
+
+Conduct testing and deploy the application.
+
+10. Additional Resources
+Django Documentation: https://docs.djangoproject.com/en/5.2/
+
+GitHub REST API: https://docs.github.com/en/rest
+
+Chart.js Documentation: https://www.chartjs.org/docs/latest/
+
+DaisyUI Components: https://daisyui.com/components/
+TestDriven.io
++2
+Django Project
++2
+CodeSignal
++2
