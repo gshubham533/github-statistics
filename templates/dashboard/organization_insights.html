@@ -28,6 +28,30 @@
     </div>
 </div>
 
+<!-- Date Range Picker -->
+<div class="card bg-base-100 shadow-xl mb-6">
+    <div class="card-body">
+        <h2 class="card-title text-xl mb-4">📅 Date Range Filter</h2>
+        <form id="dateRangeForm" method="get" class="flex flex-wrap items-end gap-4">
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">From Date</span>
+                </label>
+                <input type="date" name="from_date" id="fromDate" class="input input-bordered" value="{{ request.GET.from_date|default:'' }}">
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">To Date</span>
+                </label>
+                <input type="date" name="to_date" id="toDate" class="input input-bordered" value="{{ request.GET.to_date|default:'' }}">
+            </div>
+            <div class="form-control">
+                <button type="submit" class="btn btn-primary">Apply Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Repository Overview -->
 <div class="card bg-base-100 shadow-xl mb-6">
     <div class="card-body">
@@ -55,11 +79,15 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <h3 class="font-bold mb-2">Repository Type Breakdown</h3>
-                <canvas id="repoTypeChart" width="400" height="300"></canvas>
+                <div class="h-[300px]">
+                    <canvas id="repoTypeChart"></canvas>
+                </div>
             </div>
             <div>
                 <h3 class="font-bold mb-2">Repository Creation Timeline</h3>
-                <canvas id="repoTimelineChart" width="400" height="300"></canvas>
+                <div class="h-[300px]">
+                    <canvas id="repoTimelineChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -70,10 +98,12 @@
     <div class="card-body">
         <h2 class="card-title text-xl mb-4">👨‍💻 Contributor Analytics</h2>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
                 <h3 class="font-bold mb-2">Top Contributors</h3>
-                <canvas id="contributorsChart" width="400" height="300"></canvas>
+                <div class="h-[300px]">
+                    <canvas id="contributorsChart"></canvas>
+                </div>
             </div>
             <div>
                 <div class="overflow-x-auto">
@@ -91,6 +121,13 @@
                 </div>
             </div>
         </div>
+        
+        <div class="mt-6">
+            <h3 class="font-bold mb-2">Lines Added/Removed</h3>
+            <div class="h-[300px]">
+                <canvas id="linesAddedRemovedChart"></canvas>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -102,11 +139,15 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <h3 class="font-bold mb-2">Most Active Repositories</h3>
-                <canvas id="activeReposChart" width="400" height="300"></canvas>
+                <div class="h-[300px]">
+                    <canvas id="activeReposChart"></canvas>
+                </div>
             </div>
             <div>
                 <h3 class="font-bold mb-2">Language Distribution</h3>
-                <canvas id="languageChart" width="400" height="300"></canvas>
+                <div class="h-[300px]">
+                    <canvas id="languageChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -120,7 +161,9 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
                 <h3 class="font-bold mb-2">Traffic Overview</h3>
-                <canvas id="trafficChart" width="400" height="300"></canvas>
+                <div class="h-[300px]">
+                    <canvas id="trafficChart"></canvas>
+                </div>
             </div>
             <div>
                 <h3 class="font-bold mb-2">Top Referrers</h3>
@@ -210,7 +253,29 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 12,
+                        font: {
+                            size: 10
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                            const percentage = Math.round((value * 100) / total) + '%';
+                            return `${label}: ${percentage}`;
+                        }
+                    }
+                }
+            }
         }
     });
 
@@ -238,11 +303,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45,
+                            autoSkip: true,
+                            maxTicksLimit: 12
+                        }
+                    },
                     y: {
                         beginAtZero: true,
                         ticks: {
                             precision: 0
                         }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
                     }
                 }
             }
@@ -286,9 +365,15 @@ document.addEventListener('DOMContentLoaded', function() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                indexAxis: 'y',
                 scales: {
-                    y: {
+                    x: {
                         beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
                     }
                 }
             }
@@ -321,9 +406,21 @@ document.addEventListener('DOMContentLoaded', function() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                indexAxis: 'y',
                 scales: {
-                    y: {
+                    x: {
                         beginAtZero: true
+                    },
+                    y: {
+                        ticks: {
+                            autoSkip: false,
+                            maxRotation: 0
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
                     }
                 }
             }
@@ -360,7 +457,29 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            boxWidth: 12,
+                            font: {
+                                size: 10
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                                const percentage = Math.round((value * 100) / total) + '%';
+                                return `${label}: ${percentage}`;
+                            }
+                        }
+                    }
+                }
             }
         });
     }
@@ -418,12 +537,123 @@ document.addEventListener('DOMContentLoaded', function() {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45,
+                            autoSkip: true,
+                            maxTicksLimit: 10
+                        }
+                    },
                     y: {
                         beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top'
                     }
                 }
             }
         });
+    }
+
+    // Lines Added/Removed Chart
+    const linesData = {{ contributors_lines_data|default:'[]'|safe }};
+    if (linesData && linesData.length > 0) {
+        const contributors = linesData.map(item => item.login);
+        const linesAdded = linesData.map(item => item.lines_added || 0);
+        const linesRemoved = linesData.map(item => item.lines_removed || 0);
+        
+        // Create lines added/removed chart (limit to top 10)
+        const limitedContributors = contributors.slice(0, 10);
+        const limitedLinesAdded = linesAdded.slice(0, 10);
+        const limitedLinesRemoved = linesRemoved.slice(0, 10);
+
+        const linesCtx = document.getElementById('linesAddedRemovedChart').getContext('2d');
+        new Chart(linesCtx, {
+            type: 'bar',
+            data: {
+                labels: limitedContributors,
+                datasets: [
+                    {
+                        label: 'Lines Added',
+                        data: limitedLinesAdded,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Lines Removed',
+                        data: limitedLinesRemoved.map(value => -Math.abs(value)),  // Convert to negative values for visualization
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        stacked: false,
+                        title: {
+                            display: true,
+                            text: 'Number of Lines'
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        ticks: {
+                            autoSkip: false,
+                            maxRotation: 0
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.dataset.label || '';
+                                let value = context.parsed.x;
+                                if (label === 'Lines Removed') {
+                                    value = Math.abs(value); // Convert back to positive for display
+                                }
+                                return `${label}: ${value}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        // If no data is available, show a message
+        const container = document.getElementById('linesAddedRemovedChart').parentElement;
+        container.innerHTML = '<p class="text-center py-8 text-gray-500">No lines added/removed data available for the selected period.</p>';
+    }
+});
+
+// Initialize date picker functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+    
+    const fromDateInput = document.getElementById('fromDate');
+    const toDateInput = document.getElementById('toDate');
+    
+    // Set default dates if none are provided
+    if (!fromDateInput.value) {
+        fromDateInput.valueAsDate = thirtyDaysAgo;
+    }
+    
+    if (!toDateInput.value) {
+        toDateInput.valueAsDate = today;
     }
 });
 </script>
