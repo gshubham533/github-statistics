@@ -10,6 +10,35 @@
     </ul>
 </div>
 
+<!-- Organizations Section -->
+{% if orgs %}
+<div class="card bg-base-100 shadow-xl mb-6">
+    <div class="card-body">
+        <h2 class="card-title">Your Organizations</h2>
+        <div class="overflow-x-auto">
+            <table class="table table-zebra w-full">
+                <thead>
+                    <tr>
+                        <th>Organization</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for org in orgs %}
+                        <tr>
+                            <td>{{ org.login }}</td>
+                            <td>
+                                <a href="{% url 'organization_insights' org_name=org.login %}" class="btn btn-sm btn-primary">View Organization Insights</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <div class="flex flex-col lg:flex-row gap-4">
     <!-- Personal Repositories -->
     <div class="lg:w-1/2">

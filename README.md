@@ -8,6 +8,13 @@ A web application that allows users to gain insights into their GitHub repositor
 - Dashboard displaying repository metrics
 - Interactive charts and visualizations for repository insights
 - Support for both personal and organizational repositories
+- Organization-level insights with aggregated data
+  - Repository overview (public/private/forked/template)
+  - Contributor analytics
+  - Commit and code activity across repositories
+  - Traffic and engagement metrics
+  - Language and tech stack breakdown
+  - Security and maintenance metrics
 
 ## Technology Stack
 
@@ -69,6 +76,15 @@ A web application that allows users to gain insights into their GitHub repositor
 2. Add your GitHub Personal Access Token (PAT) with appropriate permissions
 3. View your repositories and select one to see detailed insights
 4. Explore various metrics and visualizations about your repository
+5. Access organization-level insights to see aggregated data across all repositories
+
+## GitHub API Permissions
+
+For full functionality, your GitHub token should have the following permissions:
+- `repo` - For accessing repository data
+- `read:org` - For accessing organization data
+- `read:user` - For basic user information
+- `read:project` - For project data
 
 ## License
 

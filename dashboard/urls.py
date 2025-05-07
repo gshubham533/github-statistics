@@ -9,4 +9,5 @@ urlpatterns = [
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('api-key/', views.add_api_key_view, name='add_api_key'),
     path('repository/<str:owner>/<str:repo>/', views.repository_insights_view, name='repository_insights'),
+    path('organization/<str:org_name>/', views.organization_insights_view, name='organization_insights'),
 ] 
