@@ -47,7 +47,7 @@ A web application that allows users to gain insights into their GitHub repositor
 
 3. Install dependencies:
    ```
-   pip install django requests
+   pip install django requests whitenoise
    ```
 
 4. Make the run script executable:
